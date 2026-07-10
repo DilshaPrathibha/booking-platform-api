@@ -1,0 +1,90 @@
+// This is your Prisma schema file.
+// Prisma 7+ requires the url to be configured in prisma.config.ts — NOT here.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  // NOTE: The connection URL is configured in prisma.config.ts (Prisma 7+)
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ---------------------------------------------------------------------------
+// User
+// Represents admin / staff accounts that manage services.
+// Customers do NOT have accounts — they are identified by name/email/phone.
+// ---------------------------------------------------------------------------
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   // Never store plain-text passwords
+  name         String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Service
+// A bookable service offered on the platform (e.g. "60-min massage").
+// ---------------------------------------------------------------------------
+model Service {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  duration    Int     // Duration in minutes
+  price       Decimal @db.Decimal(10, 2)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("services")
+}
+
+// ---------------------------------------------------------------------------
+// Booking
+// A customer's reservation of a specific Service at a date/time.
+// ---------------------------------------------------------------------------
+model Booking {
+  id            String        @id @default(cuid())
+  customerName  String
+  customerEmail String
+  customerPhone String
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  bookingDate DateTime // Date of the booking (stored as UTC midnight)
+  bookingTime String   // Time as "HH:MM" (e.g. "14:30")
+
+  status BookingStatus @default(PENDING)
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Bonus feature: prevent double-booking for same service + date + time
+  @@unique([serviceId, bookingDate, bookingTime])
+
+  @@map("bookings")
+}

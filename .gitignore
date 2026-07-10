@@ -35,8 +35,10 @@ Thumbs.db
 # NestJS compiled JS (we use ts-node in dev)
 *.js.map
 
-# Prisma (we keep migrations, but not the generated client binary)
-# prisma/migrations is committed (it's our DB schema history)
+# Prisma generated client (regenerated via `npm run prisma:generate` or `npm install`)
+src/generated/
+
+# Prisma migrations ARE committed — they are our DB schema history
 
 # Test coverage
 coverage/
