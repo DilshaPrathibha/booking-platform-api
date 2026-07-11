@@ -16,9 +16,10 @@ A RESTful API for managing services and customer bookings, built with NestJS, Ty
 ```
 src/
 ├── auth/           # JWT authentication (register, login)
-├── services/       # Service management (CRUD)
 ├── bookings/       # Booking management
+├── common/         # Shared filters and DTOs (pagination, exception filter)
 ├── prisma/         # Prisma service (database connection)
+├── services/       # Service management (CRUD)
 └── main.ts         # Application entry point
 ```
 
@@ -34,7 +35,7 @@ src/
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/DilshaPrathibha/booking-platform-api.git
 cd booking-platform-api
 
 # Install dependencies
@@ -84,10 +85,10 @@ npm run start:prod
 
 ```bash
 # Create a new migration
-npx prisma migrate dev --name <migration-name>
+npx prisma migrate dev --config prisma.config.ts --name <migration-name>
 
 # Apply migrations in production
-npx prisma migrate deploy
+npm run migrate:deploy
 ```
 
 ## API Documentation
@@ -148,9 +149,9 @@ Swagger UI provides interactive documentation for all endpoints.
 
 - Refresh token support
 - Email notifications on booking confirmation
-- Pagination and filtering on list endpoints
 - Role-based access control (admin vs. staff)
-- Rate limiting
+- Rate limiting on public endpoints
+- Soft-delete for services (preserve audit trail)
 - Unit and integration test coverage
 
 ## License

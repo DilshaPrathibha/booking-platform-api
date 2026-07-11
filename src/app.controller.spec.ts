@@ -14,9 +14,12 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('getApiInfo', () => {
+    it('should return API info object with status ok', () => {
+      const result = appController.getApiInfo();
+      expect(result.status).toBe('ok');
+      expect(result.name).toBe('Booking Platform API');
+      expect(result.docs).toBe('/api/docs');
     });
   });
 });

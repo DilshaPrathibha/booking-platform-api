@@ -58,9 +58,9 @@ export class CreateBookingDto {
   @IsDateString({}, { message: 'bookingDate must be a valid ISO date (e.g. "2026-08-15")' })
   bookingDate: string;
 
-  @ApiProperty({ example: '14:30', description: 'Booking time in HH:MM format (24-hour clock)' })
-  @Matches(/^\d{2}:\d{2}$/, {
-    message: 'bookingTime must be in HH:MM format (e.g. "14:30")',
+  @ApiProperty({ example: '14:30', description: 'Booking time in HH:MM format (24-hour clock, e.g. "09:00", "23:59")' })
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, {
+    message: 'bookingTime must be a valid 24-hour time in HH:MM format (e.g. "09:00", "14:30")',
   })
   bookingTime: string;
 
