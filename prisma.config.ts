@@ -8,8 +8,8 @@ import { defineConfig, env } from 'prisma/config';
  * file. This gives Prisma full control over connection config at the CLI level
  * (for migrations, db push, etc.) while keeping secrets out of the schema.
  *
- * The PrismaClient in application code still receives the adapter separately
- * (see src/prisma/prisma.service.ts — created in a future commit).
+ * The PrismaClient in application code receives the adapter separately
+ * (see src/prisma/prisma.service.ts).
  */
 export default defineConfig({
   schema: './prisma/schema.prisma',

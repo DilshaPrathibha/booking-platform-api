@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  getApiInfo() {
+    return {
+      name: 'Booking Platform API',
+      version: '1.0.0',
+      status: 'ok',
+      docs: '/api/docs',
+    };
   }
 }
