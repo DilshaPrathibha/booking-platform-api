@@ -2,6 +2,22 @@
 
 A RESTful API for managing services and customer bookings, built with NestJS, TypeScript, Prisma ORM, and PostgreSQL.
 
+## Live Demo
+
+| | URL |
+|---|---|
+| **Swagger UI (Live)** | https://booking-platform-api-8c3s.onrender.com/api/docs |
+| **API Base URL** | https://booking-platform-api-8c3s.onrender.com/api |
+
+> **Note:** Hosted on Render free tier — first request after idle may take ~30 seconds to wake up.
+
+## Documentation
+
+| Document | Link |
+|---|---|
+| **Software Requirements Specification (SRS)** | [Booking_Platform_API_SRS.pdf](https://drive.google.com/file/d/1fCYYYJMIhkw2nRwFo29cwfVvOp6DkC6A/view) |
+| **Running Guide** | [Booking_Platform_API_Running_Guide.pdf](https://drive.google.com/file/d/1gsgWbDAyoDKhFprjIhk3jahmun6yKoYH/view) |
+
 ## Tech Stack
 
 - **Framework:** NestJS (TypeScript)
@@ -96,13 +112,12 @@ npm run migrate:deploy
 
 ## API Documentation
 
-Once the app is running, visit:
+| Environment | Swagger UI | Base URL |
+|---|---|---|
+| **Live (Render)** | [api/docs](https://booking-platform-api-8c3s.onrender.com/api/docs) | `https://booking-platform-api-8c3s.onrender.com/api` |
+| **Local** | http://localhost:3000/api/docs | `http://localhost:3000/api` |
 
-```
-http://localhost:3000/api/docs
-```
-
-Swagger UI provides interactive documentation for all endpoints.
+Swagger UI provides interactive documentation for all endpoints. Use the **Authorize** button to enter a JWT token and test protected routes directly from the browser.
 
 ## API Overview
 
