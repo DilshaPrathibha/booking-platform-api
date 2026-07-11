@@ -1,7 +1,9 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -43,19 +45,36 @@ export class ServicesService {
   }
 
   /**
-   * Returns all services.
+   * Returns all services with pagination.
    *
-   * Design note: the public-facing list shows ALL services (active and
-   * inactive). Filtering by isActive will be added in the polish phase
-   * via a query param. For now, returning everything is correct for the
-   * recruiter review — it demonstrates the data is persisted correctly.
+   * Returns a paginated meta + data envelope so clients know how many pages
+   * exist and can implement "Load More" or numbered pagination.
    *
    * Results are ordered by creation date (newest first) for predictable output.
    */
-  async findAll() {
-    return this.prisma.service.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(query: PaginationDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.service.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.service.count(),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**
@@ -107,17 +126,28 @@ export class ServicesService {
   /**
    * Deletes a service by ID.
    *
-   * Same pattern as update(): calls findOne() first for a clean 404.
+   * Calls findOne() first for a clean 404 if the service does not exist.
    *
-   * Note: if a booking references this service, PostgreSQL will reject the
-   * delete due to the foreign key constraint (onDelete: Restrict in schema).
-   * That will surface as a 500 for now — proper handling (409 Conflict) will
-   * be added in the polish phase once bookings are implemented.
+   * If the service has existing bookings, PostgreSQL will reject the delete
+   * with a foreign key constraint error (Prisma code P2003). We catch this
+   * and return a 409 Conflict with a clear message instead of a raw 500.
    *
    * Returns void — the controller maps this to 204 No Content.
    */
   async remove(id: string): Promise<void> {
     await this.findOne(id);
-    await this.prisma.service.delete({ where: { id } });
+
+    try {
+      await this.prisma.service.delete({ where: { id } });
+    } catch (error: any) {
+      // P2003 = foreign key constraint violation
+      if (error?.code === 'P2003') {
+        throw new ConflictException(
+          'This service cannot be deleted because it has existing bookings. ' +
+            'Cancel or reassign the bookings before deleting the service.',
+        );
+      }
+      throw error;
+    }
   }
 }

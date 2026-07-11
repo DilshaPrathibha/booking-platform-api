@@ -8,6 +8,7 @@ import {
 import { BookingStatus } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { QueryBookingsDto } from './dto/query-bookings.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 /**
@@ -124,18 +125,55 @@ export class BookingsService {
   // ── Read ────────────────────────────────────────────────────────────────
 
   /**
-   * Returns all bookings, newest first.
-   * Includes the associated service for context.
+   * Returns bookings with pagination, optional status filter, and name/email search.
+   *
+   * Pagination: page (1-based) + limit (max 100). Returns a meta envelope.
+   * Status filter: ?status=PENDING narrows results to that status only.
+   * Search: ?search=alice does a case-insensitive partial match on
+   *   customerName OR customerEmail — useful for staff looking up a customer.
+   *
+   * All three are optional and can be combined freely.
    */
-  async findAll() {
-    return this.prisma.booking.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        service: {
-          select: { id: true, title: true, duration: true, price: true },
+  async findAll(query: QueryBookingsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    // Build the Prisma where clause dynamically based on provided filters.
+    const where = {
+      ...(query.status && { status: query.status }),
+      ...(query.search && {
+        OR: [
+          { customerName: { contains: query.search, mode: 'insensitive' as const } },
+          { customerEmail: { contains: query.search, mode: 'insensitive' as const } },
+        ],
+      }),
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          service: {
+            select: { id: true, title: true, duration: true, price: true },
+          },
         },
+      }),
+      this.prisma.booking.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   /**
