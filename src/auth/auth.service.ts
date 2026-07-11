@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
+import type { JwtPayload } from './interfaces/jwt-payload.interface';
 
 /** Number of bcrypt salt rounds. 12 is the recommended production value.
  *  Higher = more secure but slower. 10-12 is the industry sweet spot. */

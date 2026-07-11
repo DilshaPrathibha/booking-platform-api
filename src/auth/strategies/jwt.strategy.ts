@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../prisma/prisma.service';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import type { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 /**
  * JwtStrategy — validates every inbound request that carries a Bearer token.
