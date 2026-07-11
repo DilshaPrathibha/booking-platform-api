@@ -27,6 +27,33 @@ A RESTful API for managing services and customer bookings, built with NestJS, Ty
 - **Documentation:** Swagger / OpenAPI
 - **Containerization:** Docker & Docker Compose
 
+## Features
+
+- **JWT Authentication** — register and login with bcrypt-hashed passwords
+- **Service Management** — full CRUD with JWT protection on write operations
+- **Booking Management** — create (public), view, update status, and cancel bookings
+- **Business Rule Enforcement** — past dates, inactive services, duplicate slots, forbidden status transitions
+- **Pagination** — `?page` and `?limit` query params on all list endpoints
+- **Search & Filter** — search bookings by customer name/email; filter by status
+- **Swagger / OpenAPI** — interactive API documentation with JWT auth support
+- **Global Exception Handling** — consistent JSON error responses for all error types
+- **Docker Support** — PostgreSQL via Docker Compose with health check
+- **Input Validation** — strict DTO validation on all request bodies and query params
+
+## Architecture
+
+```
+Client Request
+     ↓
+ Controller        (HTTP layer — routing, guards, DTOs)
+     ↓
+  Service          (Business logic — rules, validation)
+     ↓
+PrismaService      (Data access layer)
+     ↓
+ PostgreSQL        (Database)
+```
+
 ## Project Structure
 
 ```
@@ -83,7 +110,10 @@ cp .env.example .env
 docker-compose up -d
 
 # Run Prisma migrations
-npx prisma migrate dev
+npx prisma migrate dev --config prisma.config.ts
+
+# Generate the Prisma client
+npx prisma generate --config prisma.config.ts
 
 # (Optional) Seed the database
 npx prisma db seed
@@ -120,6 +150,8 @@ npm run migrate:deploy
 Swagger UI provides interactive documentation for all endpoints. Use the **Authorize** button to enter a JWT token and test protected routes directly from the browser.
 
 ## API Overview
+
+> All endpoints below are relative to the base URL `http://localhost:3000/api`.
 
 ### Authentication
 
