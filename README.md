@@ -77,12 +77,15 @@ Copy the example env file and fill in your values:
 cp .env.example .env
 ```
 
-| Variable | Description | Example |
+| Variable | Description | Required |
 |---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/booking_db` |
-| `JWT_SECRET` | Secret key for signing JWTs | `your-super-secret-key` |
-| `JWT_EXPIRES_IN` | Token expiry duration | `7d` |
-| `PORT` | Port the API runs on | `3000` |
+| `POSTGRES_USER` | PostgreSQL username | Yes |
+| `POSTGRES_PASSWORD` | PostgreSQL password — use a strong value | Yes |
+| `POSTGRES_DB` | PostgreSQL database name | Yes |
+| `DATABASE_URL` | Full Prisma connection string (built from the values above) | Yes |
+| `JWT_SECRET` | Secret key for signing JWTs — minimum 64 characters | Yes |
+| `JWT_EXPIRES_IN` | Token expiry duration (e.g. `7d`, `1h`) | Yes |
+| `PORT` | Port the API listens on | No (default: `3000`) |
 
 ### Database Setup
 

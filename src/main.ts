@@ -4,7 +4,53 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
+/**
+ * Validates that all required environment variables are set and that none
+ * still contain the placeholder values from .env.example.
+ *
+ * Called before the NestJS application is created so that misconfigured
+ * environments fail immediately with a clear message rather than producing
+ * cryptic database or JWT errors at runtime.
+ */
+function validateEnv(): void {
+  const logger = new Logger('EnvValidation');
+
+  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_EXPIRES_IN'];
+
+  // Any value that starts with or contains these strings is still a placeholder
+  const placeholderMarkers = ['REPLACE_WITH', 'YOUR_'];
+
+  const errors: string[] = [];
+
+  for (const key of required) {
+    const value = process.env[key];
+
+    if (!value) {
+      errors.push(`  ✗ ${key} is not set`);
+      continue;
+    }
+
+    if (placeholderMarkers.some((marker) => value.includes(marker))) {
+      errors.push(
+        `  ✗ ${key} still contains a placeholder value — update your .env file`,
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    logger.error(
+      `Application startup aborted — environment is not configured:\n${errors.join('\n')}\n\n` +
+        '  Copy .env.example to .env and replace all placeholder values.',
+    );
+    process.exit(1);
+  }
+
+  logger.log('Environment validation passed.');
+}
+
 async function bootstrap() {
+  validateEnv();
+
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
